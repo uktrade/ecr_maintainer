@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "ecr-cleaner"
+version = "0.1.0"
+description = "Script to expire unused ecr image"
+authors = ["Dhaval Vadgama <dhavalkumar.Vadgama@digital.trade.gov.uk>"]
+license = "MIT"
+readme = "README.md"
+packages = [
+    { include = "ecr_cleaner"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+boto3 = "^1.35.25"
+slack-sdk = "^3.33.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+autoflake = "^2.3.1"
+black = "^24.8.0"
+pre-commit = "^3.8.0"
+moto = "^5.0.16"
+pytest-mock = "^3.14.0"
+pytest-cov = "^5.0.0"
+pylint = "^3.3.1"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--strict-markers -ra -q -p no:warnings"
+pythonpath = [ "."]
