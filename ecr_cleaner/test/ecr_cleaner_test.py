@@ -28,6 +28,7 @@ def test_property_images_to_delete(ecr_cleaner, ecr_data, mocker):
 
 def test_send_slack_notifier(ecr_cleaner, mocker):
 
+    config.SLACK_ENABLED = True
     mock_send_message = mocker.patch.object(ecr_cleaner.slack_notifier, "send_message")
 
     mock_delete_images = mocker.patch.object(ecr_cleaner.ecr_manager, "delete_images")
@@ -37,6 +38,8 @@ def test_send_slack_notifier(ecr_cleaner, mocker):
     ecr_cleaner.run()
 
     mock_send_message.assert_called_once()
+
+    config.SLACK_ENABLED = False
 
 
 def test_delete_old_images(ecr_cleaner, mocker):
@@ -54,6 +57,7 @@ def test_delete_old_images(ecr_cleaner, mocker):
 def test_run(ecr_cleaner, ecr_manager, mocker):
 
     config.DELETE_ENABLED = True
+    config.SLACK_ENABLED = True
 
     mock_delete_images = mocker.patch.object(ecr_manager, "delete_images")
     mock_send_message = mocker.patch.object(ecr_cleaner.slack_notifier, "send_message")
@@ -75,6 +79,7 @@ def test_run(ecr_cleaner, ecr_manager, mocker):
     mock_send_message.assert_called_once()
 
     config.DELETE_ENABLED = False
+    config.SLACK_ENABLED = False
 
 
 def test_delete_old_images_when_delete_is_not_enabled(ecr_cleaner, mocker):

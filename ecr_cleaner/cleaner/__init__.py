@@ -68,14 +68,15 @@ class ECRCleaner:
             for image in repository_images:
                 image_digest = image["imageDigest"]
 
-                if "imageTag" not in image.keys():
-                    image["imageTag"] = ""
+                image_tag = None
 
-                if "imageTags" not in image.keys():
-                    image["imageTags"] = [""]
+                if "imageTag" in image.keys():
+                    image_tag = image["imageTag"]
 
-                image_tag = image["imageTag"]
-                image_tags = image["imageTags"]
+                image_tags = None
+
+                if "imageTags" in image.keys():
+                    image_tags = image["imageTags"]
                 image_pushed_at = image["imagePushedAt"]
 
                 all_images.add(image_digest)
@@ -87,18 +88,23 @@ class ECRCleaner:
                 ):
                     images_to_keep.add(image_digest)
 
+                # check images by one or more tags
                 if image_tags:
                     for tag in image_tags:
                         full_image = f"{repoUri}:{tag}"
                         if full_image in running_task_images:
                             images_to_keep.add(image_digest)
 
-                elif image_tag:
+                # check image with single tag
+                if image_tag:
                     full_image = f"{repoUri}:{image_tag}"
                     if full_image in running_task_images:
                         images_to_keep.add(image_digest)
 
-                else:
+                # this is for checking images which are added in task with digest instead of tags
+                # it may or may not have tags but, it still can be added with digest and we need to check for else
+                # we may miss an image
+                if True:
                     full_image = f"{repoUri}@{image_digest}"
                     if full_image in running_task_images:
                         images_to_keep.add(image_digest)
@@ -140,6 +146,7 @@ class ECRCleaner:
         images_to_delete = self.images_to_delete
 
         if images_to_delete:
-            self.send_slack_notice(images_to_delete=images_to_delete)
+            if config.SLACK_ENABLED:
+                self.send_slack_notice(images_to_delete=images_to_delete)
             if config.DELETE_ENABLED:
                 self.delete_old_images(images_to_delete=images_to_delete)
